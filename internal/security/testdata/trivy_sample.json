@@ -1,0 +1,57 @@
+{
+  "SchemaVersion": 2,
+  "ArtifactName": "kaizenops-collector:latest",
+  "ArtifactType": "container_image",
+  "Metadata": {
+    "OS": {
+      "Family": "alpine",
+      "Name": "3.19.1"
+    }
+  },
+  "Results": [
+    {
+      "Target": "kaizenops-collector:latest (alpine 3.19.1)",
+      "Class": "os-pkgs",
+      "Type": "alpine",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2023-5678",
+          "PkgName": "openssl",
+          "InstalledVersion": "3.1.2-r0",
+          "FixedVersion": "3.1.4-r0",
+          "Severity": "HIGH",
+          "Title": "openssl: Invalid GF(2^m) parameters",
+          "Description": "Applications that use OpenSSL and load DH keys or parameters may hang.",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-5678"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-0001",
+          "PkgName": "busybox",
+          "InstalledVersion": "1.36.1-r15",
+          "FixedVersion": "",
+          "Severity": "LOW",
+          "Title": "busybox: minor denial of service",
+          "Description": "A crafted input can cause busybox applets to loop.",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-0001"
+        }
+      ]
+    },
+    {
+      "Target": "go.sum",
+      "Class": "lang-pkgs",
+      "Type": "gomod",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2024-24786",
+          "PkgName": "google.golang.org/protobuf",
+          "InstalledVersion": "1.31.0",
+          "FixedVersion": "1.33.0",
+          "Severity": "CRITICAL",
+          "Title": "protojson: infinite loop when unmarshaling certain forms of invalid JSON",
+          "Description": "The protojson.Unmarshal function can enter an infinite loop.",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-24786"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "Issues": [
+    {
+      "severity": "HIGH",
+      "confidence": "HIGH",
+      "cwe": {
+        "ID": "89",
+        "URL": "https://cwe.mitre.org/data/definitions/89.html"
+      },
+      "rule_id": "G201",
+      "details": "SQL string formatting",
+      "file": "/home/runner/work/kaizenops/kaizenops/internal/storage/postgres.go",
+      "code": "query := fmt.Sprintf(\"SELECT * FROM runs WHERE id = %s\", id)\n",
+      "line": "142",
+      "column": "10",
+      "nosec": false,
+      "suppressions": null
+    },
+    {
+      "severity": "MEDIUM",
+      "confidence": "HIGH",
+      "cwe": {
+        "ID": "22",
+        "URL": "https://cwe.mitre.org/data/definitions/22.html"
+      },
+      "rule_id": "G304",
+      "details": "Potential file inclusion via variable",
+      "file": "/home/runner/work/kaizenops/kaizenops/internal/ingest/worker.go",
+      "code": "data, err := os.ReadFile(path)\n",
+      "line": "58",
+      "column": "14",
+      "nosec": false,
+      "suppressions": null
+    },
+    {
+      "severity": "LOW",
+      "confidence": "MEDIUM",
+      "cwe": {
+        "ID": "703",
+        "URL": "https://cwe.mitre.org/data/definitions/703.html"
+      },
+      "rule_id": "G104",
+      "details": "Errors unhandled.",
+      "file": "/home/runner/work/kaizenops/kaizenops/internal/github/client.go",
+      "code": "resp.Body.Close()\n",
+      "line": "201",
+      "column": "3",
+      "nosec": false,
+      "suppressions": null
+    }
+  ],
+  "Stats": {
+    "files": 47,
+    "lines": 6123,
+    "nosec": 0,
+    "found": 3
+  },
+  "Golang errors": {}
+}
