@@ -1,0 +1,33 @@
+# Go
+/bin/
+*.test
+*.out
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+
+# Python / ML
+__pycache__/
+*.pyc
+.venv/
+venv/
+ml/models/*.pkl
+ml/models/*.joblib
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
