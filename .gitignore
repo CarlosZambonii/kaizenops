@@ -19,6 +19,7 @@ __pycache__/
 venv/
 ml/models/*.pkl
 ml/models/*.joblib
+ml/models/*.json
 
 # Env / secrets
 .env
