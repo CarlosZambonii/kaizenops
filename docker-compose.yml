@@ -1,0 +1,22 @@
+services:
+  timescaledb:
+    image: timescale/timescaledb:2.16.1-pg16
+    container_name: kaizenops-timescaledb
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${TIMESCALEDB_USER:-kaizenops}
+      POSTGRES_PASSWORD: ${TIMESCALEDB_PASSWORD:-kaizenops-dev}
+      POSTGRES_DB: ${TIMESCALEDB_DB:-kaizenops}
+    ports:
+      - "${TIMESCALEDB_PORT:-5432}:5432"
+    volumes:
+      - timescaledb-data:/var/lib/postgresql/data
+      - ./migrations:/migrations:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${TIMESCALEDB_USER:-kaizenops}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  timescaledb-data:
