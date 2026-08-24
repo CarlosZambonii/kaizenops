@@ -27,6 +27,7 @@ ml/models/*.json
 !.env.example
 *.pem
 *.key
+/secrets/
 
 # Editor / OS
 .vscode/
