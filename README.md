@@ -134,3 +134,4 @@ helm install kaizenops ../deploy/kaizenops --namespace kaizenops
 
 Ver seção 5 do [`CLAUDE.md`](CLAUDE.md).
 
+
