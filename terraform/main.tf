@@ -35,6 +35,28 @@ provider "helm" {
 resource "kubernetes_namespace" "kaizenops" {
   metadata {
     name = var.namespace
+
+    # PodSecurityStandards (Fase 5). O chart Helm dos componentes do
+    # KaizenOps (deploy/kaizenops) já roda com securityContext
+    # compatível com "restricted", mas o TimescaleDB de terceiros
+    # (helm_release.timescaledb acima) NÃO é — ele roda sem
+    # seccompProfile nem capabilities dropadas. Como os dois
+    # compartilham este namespace, enforce=restricted quebraria o
+    # TimescaleDB na próxima recriação do pod (confirmado: o
+    # Kubernetes avisa "unrestricted capabilities, seccompProfile" ao
+    # tentar). Por isso: enforce=baseline (bloqueia privileged,
+    # hostNetwork/hostPID/hostIPC e afins, sem quebrar o TimescaleDB)
+    # e audit/warn=restricted (dá visibilidade de que o TimescaleDB
+    # não atende o nível mais estrito, sem impedir nada). Separar
+    # TimescaleDB num namespace próprio permitiria enforce=restricted
+    # nos componentes do KaizenOps sem essa concessão — não fizemos
+    # isso agora para não mudar a topologia de namespace única já
+    # decidida (seção 3 do CLAUDE.md).
+    labels = {
+      "pod-security.kubernetes.io/enforce" = "baseline"
+      "pod-security.kubernetes.io/audit"   = "restricted"
+      "pod-security.kubernetes.io/warn"    = "restricted"
+    }
   }
 
   depends_on = [kind_cluster.kaizenops]
@@ -75,9 +97,9 @@ resource "helm_release" "timescaledb" {
 
       secrets = {
         credentials = {
-          PATRONI_SUPERUSER_PASSWORD     = var.timescaledb_superuser_password
-          PATRONI_REPLICATION_PASSWORD   = var.timescaledb_superuser_password
-          PATRONI_admin_PASSWORD         = var.timescaledb_superuser_password
+          PATRONI_SUPERUSER_PASSWORD   = var.timescaledb_superuser_password
+          PATRONI_REPLICATION_PASSWORD = var.timescaledb_superuser_password
+          PATRONI_admin_PASSWORD       = var.timescaledb_superuser_password
         }
       }
 
