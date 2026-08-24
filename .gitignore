@@ -5,12 +5,12 @@
 
 # Terraform
 .terraform/
-.terraform.lock.hcl
 *.tfstate
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
 crash.log
+terraform/kaizenops-config
 
 # Python / ML
 __pycache__/
