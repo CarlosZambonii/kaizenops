@@ -1,0 +1,53 @@
+# Shared .dockerignore for all images built from repo root
+# (cmd/collector, cmd/spc, ml/api).
+
+# VCS / editor / OS
+.git
+.gitignore
+.github
+.vscode/
+.idea/
+.DS_Store
+
+# Docs
+docs/
+*.md
+!README.md
+
+# Terraform
+terraform/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+
+# Deploy manifests / compose (not needed inside images)
+deploy/
+docker-compose.yml
+
+# Go build artifacts
+/bin/
+*.test
+*.out
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.venv/
+venv/
+ml/models/*.pkl
+ml/models/*.joblib
+
+# Node (in case tooling is added later)
+node_modules/
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
