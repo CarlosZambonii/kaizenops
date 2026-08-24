@@ -58,6 +58,8 @@ func applyMigration(ctx context.Context, pool *pgxpool.Pool, dir, name string) e
 		return nil
 	}
 
+	// #nosec G304 -- name comes from os.ReadDir(dir) in Migrate, not from
+	// external/user input, so this isn't an arbitrary file read.
 	sqlBytes, err := os.ReadFile(filepath.Join(dir, name))
 	if err != nil {
 		return fmt.Errorf("reading migration %s: %w", name, err)

@@ -82,7 +82,7 @@ func run(args []string, out io.Writer) error {
 		_, err = out.Write([]byte(report))
 		return err
 	}
-	return os.WriteFile(*outPath, []byte(report), 0o644)
+	return os.WriteFile(*outPath, []byte(report), 0o600)
 }
 
 type reportParams struct {

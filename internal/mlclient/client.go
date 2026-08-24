@@ -135,7 +135,7 @@ func (c *Client) doDetectAnomaly(ctx context.Context, req AnomalyRequest) (Anoma
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		io.Copy(io.Discard, resp.Body)
+		_, _ = io.Copy(io.Discard, resp.Body)
 		return AnomalyResult{}, false
 	}
 

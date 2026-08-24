@@ -73,12 +73,12 @@ func (c *Client) SendEvents(ctx context.Context, events []Event) error {
 		}
 
 		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
-			resp.Body.Close()
+			_ = resp.Body.Close()
 			return nil
 		}
 
 		respBody, _ := io.ReadAll(resp.Body)
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		lastErr = fmt.Errorf("new relic event api returned status %d: %s", resp.StatusCode, string(respBody))
 
 		if resp.StatusCode < 500 {
@@ -146,7 +146,7 @@ func gzipCompress(data []byte) ([]byte, error) {
 
 	gw := gzip.NewWriter(&buf)
 	if _, err := gw.Write(data); err != nil {
-		gw.Close()
+		_ = gw.Close()
 		return nil, fmt.Errorf("writing gzip data: %w", err)
 	}
 	if err := gw.Close(); err != nil {

@@ -76,7 +76,7 @@ func (c *Client) Do(ctx context.Context, method, path string, body []byte) (*htt
 			if wait, ok := retryAfter(resp); ok {
 				retryWait = wait
 			}
-			resp.Body.Close()
+			_ = resp.Body.Close()
 		}
 
 		if attempt == c.maxRetries {
