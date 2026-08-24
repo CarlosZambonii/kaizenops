@@ -17,7 +17,7 @@ existingSecretName: "kaizenops-secrets"
 
 collector:
   image:
-    repository: ghcr.io/carlosz/kaizenops-collector
+    repository: ghcr.io/carloszambonii/kaizenops-collector
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -39,7 +39,7 @@ collector:
 
 spc:
   image:
-    repository: ghcr.io/carlosz/kaizenops-spc
+    repository: ghcr.io/carloszambonii/kaizenops-spc
     tag: latest
     pullPolicy: IfNotPresent
 
@@ -58,7 +58,7 @@ spc:
 
 ml:
   image:
-    repository: ghcr.io/carlosz/kaizenops-ml
+    repository: ghcr.io/carloszambonii/kaizenops-ml
     tag: latest
     pullPolicy: IfNotPresent
 

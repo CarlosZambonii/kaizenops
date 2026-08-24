@@ -102,14 +102,14 @@ jobs:
           file: cmd/collector/Dockerfile
           push: true
           tags: |
-            ghcr.io/carlosz/kaizenops-collector:${{ github.sha }}
-            ghcr.io/carlosz/kaizenops-collector:latest
+            ghcr.io/carloszambonii/kaizenops-collector:${{ github.sha }}
+            ghcr.io/carloszambonii/kaizenops-collector:latest
 
       - name: Scan kaizenops-collector image
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: image
-          image-ref: ghcr.io/carlosz/kaizenops-collector:${{ github.sha }}
+          image-ref: ghcr.io/carloszambonii/kaizenops-collector:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: "1"
 
@@ -123,14 +123,14 @@ jobs:
           file: cmd/spc/Dockerfile
           push: true
           tags: |
-            ghcr.io/carlosz/kaizenops-spc:${{ github.sha }}
-            ghcr.io/carlosz/kaizenops-spc:latest
+            ghcr.io/carloszambonii/kaizenops-spc:${{ github.sha }}
+            ghcr.io/carloszambonii/kaizenops-spc:latest
 
       - name: Scan kaizenops-spc image
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: image
-          image-ref: ghcr.io/carlosz/kaizenops-spc:${{ github.sha }}
+          image-ref: ghcr.io/carloszambonii/kaizenops-spc:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: "1"
 
@@ -144,14 +144,14 @@ jobs:
           file: ml/api/Dockerfile
           push: true
           tags: |
-            ghcr.io/carlosz/kaizenops-ml:${{ github.sha }}
-            ghcr.io/carlosz/kaizenops-ml:latest
+            ghcr.io/carloszambonii/kaizenops-ml:${{ github.sha }}
+            ghcr.io/carloszambonii/kaizenops-ml:latest
 
       - name: Scan kaizenops-ml image
         uses: aquasecurity/trivy-action@master
         with:
           scan-type: image
-          image-ref: ghcr.io/carlosz/kaizenops-ml:${{ github.sha }}
+          image-ref: ghcr.io/carloszambonii/kaizenops-ml:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: "1"
 
@@ -161,10 +161,10 @@ jobs:
         uses: sigstore/cosign-installer@main
 
       - name: Sign kaizenops-collector
-        run: cosign sign --yes ghcr.io/carlosz/kaizenops-collector@${{ steps.build-collector.outputs.digest }}
+        run: cosign sign --yes ghcr.io/carloszambonii/kaizenops-collector@${{ steps.build-collector.outputs.digest }}
 
       - name: Sign kaizenops-spc
-        run: cosign sign --yes ghcr.io/carlosz/kaizenops-spc@${{ steps.build-spc.outputs.digest }}
+        run: cosign sign --yes ghcr.io/carloszambonii/kaizenops-spc@${{ steps.build-spc.outputs.digest }}
 
       - name: Sign kaizenops-ml
-        run: cosign sign --yes ghcr.io/carlosz/kaizenops-ml@${{ steps.build-ml.outputs.digest }}
+        run: cosign sign --yes ghcr.io/carloszambonii/kaizenops-ml@${{ steps.build-ml.outputs.digest }}
