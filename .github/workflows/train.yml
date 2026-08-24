@@ -1,0 +1,54 @@
+# Treino do modelo de ML (Fase 4 / ciclo MLOps, seção 4.4 do CLAUDE.md).
+#
+# Estado atual: este workflow ainda NÃO le dados reais do TimescaleDB.
+# ml/training/train.py roda, por enquanto, com o dataset sintetico/de
+# exemplo gerado no proprio bloco __main__ do script. Ligar o treino a
+# dados reais do TimescaleDB e o disparo automatico por volume de dados
+# novos ou sinal de drift (passo 7 do ciclo MLOps) ficam para depois —
+# este arquivo e apenas o esqueleto do job de treino.
+#
+# Gate de qualidade: train.py levanta ValueError e termina com exit code
+# != 0 quando o modelo nao passa do threshold de avaliacao. Isso faz o
+# job falhar e nenhum artefato de modelo e publicado — "modelo ruim nao
+# passa do pipeline, igual codigo quebrado nao passa do build".
+
+name: ml-train
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Segunda-feira, 03:00 UTC. Disparo periodico simples; NAO e o
+    # retreino por volume/drift da Fase 4.4, que ainda nao existe.
+    - cron: "0 3 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  train:
+    name: train
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r ml/requirements.txt
+
+      - name: Run tests
+        run: pytest ml/
+
+      - name: Train model (fails the job if the quality gate rejects it)
+        run: python -m ml.training
+
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ml-model
+          path: |
+            ml/models/isolation_forest.joblib
+            ml/models/metadata.json
+          retention-days: 30
