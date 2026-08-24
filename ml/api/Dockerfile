@@ -8,6 +8,11 @@
 
 FROM python:3.12-slim AS base
 
+# Pull in Debian's own security patches for the base image's OS packages
+# before anything else — several CVEs Trivy flags against python:3.12-slim
+# already have a fix in the Debian repo, we just need to pull it in.
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
 # Install dependencies as root first, in their own cached layer.
 WORKDIR /app
 COPY ml/requirements.txt ml/requirements.txt

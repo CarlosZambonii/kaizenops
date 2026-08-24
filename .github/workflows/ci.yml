@@ -154,6 +154,7 @@ jobs:
           image-ref: ghcr.io/carloszambonii/kaizenops-ml:${{ github.sha }}
           severity: CRITICAL,HIGH
           exit-code: "1"
+          trivyignores: .trivyignore
 
       # --- keyless signing (Cosign, OIDC do proprio job, sem secret) ---
 

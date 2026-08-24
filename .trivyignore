@@ -1,0 +1,24 @@
+# Vulnerabilidades de pacotes de SO da imagem base python:3.12-slim
+# (Debian 13) sem correção disponível no repositório Debian ainda
+# (status "affected" ou "fix_deferred" no scan — não é algo que
+# `apt-get upgrade` resolva). Nenhuma pertence a um pacote que o
+# ml/api realmente invoca em runtime (perl, ncurses, gzip, libacl são
+# utilitários de base do Debian, não dependências da aplicação).
+#
+# Revisar esta lista periodicamente (ex: a cada release do Debian) e
+# remover entradas assim que uma correção for publicada.
+#
+# Revisado em: 2026-08-24, imagem kaizenops-ml.
+
+CVE-2026-41992
+CVE-2026-54369
+CVE-2025-69720
+CVE-2026-14456
+CVE-2026-13221
+CVE-2026-42496
+CVE-2026-8376
+CVE-2026-42497
+CVE-2026-48962
+CVE-2026-57432
+CVE-2026-57433
+CVE-2026-9538
