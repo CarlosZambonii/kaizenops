@@ -1,0 +1,61 @@
+name: terraform
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "terraform/**"
+      - ".github/workflows/terraform.yml"
+  pull_request:
+    paths:
+      - "terraform/**"
+      - ".github/workflows/terraform.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: fmt + validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.15.8"
+
+      - name: terraform fmt
+        run: terraform fmt -check -recursive terraform/
+
+      - name: terraform init
+        run: terraform init -backend=false
+        working-directory: terraform
+
+      - name: terraform validate
+        run: terraform validate
+        working-directory: terraform
+
+  tfsec:
+    name: tfsec
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: terraform
+
+  checkov:
+    name: checkov
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: terraform
+          quiet: true
+          soft_fail: false
