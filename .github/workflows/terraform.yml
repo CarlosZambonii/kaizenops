@@ -1,3 +1,6 @@
+# Valida (fmt/validate/tfsec/checkov) o Terraform do cluster Kind local em
+# terraform/ — não confundir com terraform/newrelic/, que é código separado
+# para um dashboard e não tem CI (precisa de uma conta New Relic real).
 name: terraform
 
 on:
