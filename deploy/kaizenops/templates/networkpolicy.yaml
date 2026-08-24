@@ -1,0 +1,121 @@
+# NetworkPolicies do KaizenOps
+#
+# Modelo: default-deny de ingress no namespace + allow-lists explícitas por
+# componente. Isso implementa a decisão de arquitetura "ML service acessível
+# apenas pelo Collector" (ver CLAUDE.md, seção 4.5) e aplica least privilege
+# de rede aos demais componentes.
+#
+# LIMITAÇÃO CONHECIDA (documentada conforme solicitado):
+# Não sabemos em qual namespace roda o Ingress controller deste cluster Kind
+# (varia por instalação: ingress-nginx, kube-system, etc.), então não é
+# possível restringir o ingress de "collector" e "spc" a pods do controller
+# por label/namespace com segurança. A policy abaixo libera ingress nessas
+# duas portas para "qualquer origem" (nenhum seletor `from`, o que o
+# Kubernetes trata como "todas as origens"), mantendo apenas a restrição de
+# porta. Isso é intencionalmente menos restritivo que o ideal — o ideal seria
+# `from: [{namespaceSelector: ...}]` apontando para o namespace do ingress
+# controller assim que ele for conhecido. Se/quando o namespace do ingress
+# controller for definido neste cluster, esta policy deve ser revisitada para
+# restringir a origem.
+#
+# O serviço ML (porta 8000) é o único caso onde a restrição by-label é
+# possível e foi aplicada: só pods com label
+# app.kubernetes.io/component=collector ou app.kubernetes.io/component=spc
+# podem alcançá-lo.
+
+---
+# 1. Default-deny de ingress para todo o namespace.
+# Qualquer pod que não tenha uma policy explícita permitindo tráfego fica sem
+# ingress algum. As policies abaixo (2, 3, 4) são as únicas exceções.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "kaizenops.fullname" . }}-default-deny-ingress
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kaizenops.labels" . | nindent 4 }}
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+  # Sem regra de ingress -> nega todo o tráfego de entrada para todos os pods
+  # do namespace, exceto onde outra NetworkPolicy libere explicitamente.
+
+---
+# 2. Collector: aceita tráfego de "qualquer origem dentro do cluster" na sua
+# porta de aplicação. Ver limitação sobre o ingress controller no topo do
+# arquivo.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "kaizenops.fullname" . }}-allow-ingress-to-collector
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kaizenops.componentLabels" (dict "ctx" $ "component" "collector") | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: collector
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8080
+      # Nenhum seletor `from`: best-effort, permite qualquer origem
+      # alcançável (qualquer namespace/pod do cluster, e também qualquer
+      # origem externa que já tenha rota até o pod, ex. via Ingress/NodePort).
+      # É a única opção sem conhecer o namespace do ingress controller.
+
+---
+# 3. SPC: mesmo raciocínio do collector.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "kaizenops.fullname" . }}-allow-ingress-to-spc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kaizenops.componentLabels" (dict "ctx" $ "component" "spc") | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: spc
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 8080
+      # Mesma ressalva da policy do collector: sem `from`, aceita qualquer
+      # origem alcançável, por falta de um alvo confiável (namespace do
+      # ingress controller) para restringir.
+
+---
+# 4. ML service: única policy com restrição forte por label, conforme
+# "ML service acessível apenas pelo Collector" — aqui ampliado para também
+# aceitar o SPC engine, que também consome o ML service (mlclient), mantendo
+# tudo o mais de fora.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "kaizenops.fullname" . }}-allow-ingress-to-ml
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "kaizenops.componentLabels" (dict "ctx" $ "component" "ml") | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/component: ml
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: collector
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/component: spc
+      ports:
+        - protocol: TCP
+          port: 8000

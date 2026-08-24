@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kaizenops.fullname" . }}-collector
+  labels:
+    {{- include "kaizenops.componentLabels" (dict "ctx" $ "component" "collector") | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "kaizenops.componentSelectorLabels" (dict "ctx" $ "component" "collector") | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.collector.service.port }}
+      targetPort: http
+      protocol: TCP

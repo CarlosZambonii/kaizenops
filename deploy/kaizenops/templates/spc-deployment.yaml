@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "kaizenops.fullname" . }}-spc
+  labels:
+    {{- include "kaizenops.componentLabels" (dict "ctx" $ "component" "spc") | nindent 4 }}
+spec:
+  replicas: {{ .Values.spc.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "kaizenops.componentSelectorLabels" (dict "ctx" $ "component" "spc") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "kaizenops.componentSelectorLabels" (dict "ctx" $ "component" "spc") | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: spc
+          image: "{{ .Values.spc.image.repository }}:{{ .Values.spc.image.tag }}"
+          imagePullPolicy: {{ .Values.spc.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          ports:
+            - name: http
+              containerPort: {{ .Values.spc.service.port }}
+              protocol: TCP
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.existingSecretName }}
+                  key: DATABASE_URL
+          resources:
+            {{- toYaml .Values.spc.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}

@@ -1,0 +1,49 @@
+{{/*
+HPA por CPU apenas para collector e ml, que são os componentes que mais
+escalam com tráfego/carga de inferência. spc fica sem HPA por enquanto.
+*/}}
+{{- if .Values.hpa.collector.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "kaizenops.fullname" . }}-collector
+  labels:
+    {{- include "kaizenops.componentLabels" (dict "ctx" $ "component" "collector") | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "kaizenops.fullname" . }}-collector
+  minReplicas: {{ .Values.hpa.collector.minReplicas }}
+  maxReplicas: {{ .Values.hpa.collector.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.hpa.collector.targetCPUUtilizationPercentage }}
+{{- end }}
+{{- if .Values.hpa.ml.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "kaizenops.fullname" . }}-ml
+  labels:
+    {{- include "kaizenops.componentLabels" (dict "ctx" $ "component" "ml") | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "kaizenops.fullname" . }}-ml
+  minReplicas: {{ .Values.hpa.ml.minReplicas }}
+  maxReplicas: {{ .Values.hpa.ml.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.hpa.ml.targetCPUUtilizationPercentage }}
+{{- end }}

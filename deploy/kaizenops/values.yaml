@@ -1,0 +1,107 @@
+# values.yaml - chart dos componentes do KaizenOps (collector, spc, ml)
+#
+# O namespace "kaizenops" já é criado pelo Terraform
+# (terraform/main.tf, resource kubernetes_namespace.kaizenops). Este chart
+# NÃO cria namespace: instale com `helm install -n kaizenops ...`.
+#
+# O Secret referenciado em `existingSecretName` também não é criado por este
+# chart. Ele precisa existir no namespace antes da instalação, com as chaves:
+#   GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY, GITHUB_WEBHOOK_SECRET,
+#   PSEUDONYM_SALT, DATABASE_URL
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Nome do Secret k8s (criado fora deste chart) com as credenciais sensíveis.
+existingSecretName: "kaizenops-secrets"
+
+collector:
+  image:
+    repository: ghcr.io/carlosz/kaizenops-collector
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  replicaCount: 1
+
+  # Endereço em que o servidor HTTP do collector escuta (env var HTTP_ADDR).
+  httpAddr: ":8080"
+
+  service:
+    port: 8080
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+spc:
+  image:
+    repository: ghcr.io/carlosz/kaizenops-spc
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  replicaCount: 1
+
+  service:
+    port: 8080
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+ml:
+  image:
+    repository: ghcr.io/carlosz/kaizenops-ml
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  replicaCount: 1
+
+  service:
+    port: 8000
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+# Ingress expõe SOMENTE collector e spc. O serviço ml nunca deve ser exposto
+# aqui: ele é acessível apenas de dentro do cluster, pelo collector/spc.
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  tls: []
+
+  collector:
+    host: collector.kaizenops.local
+    path: /
+
+  spc:
+    host: spc.kaizenops.local
+    path: /
+
+# HPA por CPU apenas para collector e ml (mais sensíveis a tráfego/carga de
+# inferência). spc fica sem HPA por enquanto.
+hpa:
+  collector:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70
+
+  ml:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70

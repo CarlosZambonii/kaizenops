@@ -1,0 +1,45 @@
+{{/*
+Ingress expõe SOMENTE collector e spc. O serviço ml é acessível apenas de
+dentro do cluster (ver templates/ml-service.yaml) e NUNCA deve entrar aqui.
+*/}}
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "kaizenops.fullname" . }}
+  labels:
+    {{- include "kaizenops.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- with .Values.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.collector.host | quote }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.collector.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "kaizenops.fullname" . }}-collector
+                port:
+                  number: {{ .Values.collector.service.port }}
+    - host: {{ .Values.ingress.spc.host | quote }}
+      http:
+        paths:
+          - path: {{ .Values.ingress.spc.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "kaizenops.fullname" . }}-spc
+                port:
+                  number: {{ .Values.spc.service.port }}
+{{- end }}

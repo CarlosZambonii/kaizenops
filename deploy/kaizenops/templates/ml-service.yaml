@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kaizenops.fullname" . }}-ml
+  labels:
+    {{- include "kaizenops.componentLabels" (dict "ctx" $ "component" "ml") | nindent 4 }}
+spec:
+  # ClusterIP simples: o ml é acessível SOMENTE de dentro do cluster, pelo
+  # collector e pelo spc. Nunca deve ganhar um Ingress (ver templates/ingress.yaml).
+  type: ClusterIP
+  selector:
+    {{- include "kaizenops.componentSelectorLabels" (dict "ctx" $ "component" "ml") | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.ml.service.port }}
+      targetPort: http
+      protocol: TCP

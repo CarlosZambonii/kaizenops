@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kaizenops.fullname" . }}-spc
+  labels:
+    {{- include "kaizenops.componentLabels" (dict "ctx" $ "component" "spc") | nindent 4 }}
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "kaizenops.componentSelectorLabels" (dict "ctx" $ "component" "spc") | nindent 4 }}
+  ports:
+    - name: http
+      port: {{ .Values.spc.service.port }}
+      targetPort: http
+      protocol: TCP
